@@ -73,7 +73,6 @@ extern crate getopts;
 extern crate byteorder;
 extern crate abomonation;
 #[macro_use] extern crate abomonation_derive;
-extern crate time;
 
 pub mod allocator;
 mod networking;

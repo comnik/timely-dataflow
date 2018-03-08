@@ -60,7 +60,6 @@
 extern crate abomonation;
 #[macro_use] extern crate abomonation_derive;
 extern crate timely_communication;
-extern crate time;
 extern crate byteorder;
 
 pub use execute::{execute, execute_logging, execute_from_args, execute_from_args_logging, example};

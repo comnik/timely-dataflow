@@ -7,17 +7,17 @@ static mut PRECISE_TIME_NS_DELTA: Option<i64> = None;
 /// roughly comparable to an unix timestamp.
 /// Useful for comparing and merging logs from different machines (precision is limited by the
 /// precision of the wall clock base; clock skew effects should be taken into consideration).
-#[inline(always)]
-pub fn get_precise_time_ns() -> u64 {
-    let delta = unsafe {
-        *PRECISE_TIME_NS_DELTA.get_or_insert_with(|| {
-            let wall_time = ::time::get_time();
-            let wall_time_ns = wall_time.nsec as i64 + wall_time.sec * 1000000000;
-            ::time::precise_time_ns() as i64 - wall_time_ns
-        })
-    };
-    (::time::precise_time_ns() as i64 - delta) as u64
-}
+// #[inline(always)]
+// pub fn get_precise_time_ns() -> u64 {
+//     let delta = unsafe {
+//         *PRECISE_TIME_NS_DELTA.get_or_insert_with(|| {
+//             let wall_time = ::time::get_time();
+//             let wall_time_ns = wall_time.nsec as i64 + wall_time.sec * 1000000000;
+//             ::time::precise_time_ns() as i64 - wall_time_ns
+//         })
+//     };
+//     (::time::precise_time_ns() as i64 - delta) as u64
+// }
 
 const BUFFERING_LOGGER_CAPACITY: usize = 1024;
 
@@ -34,7 +34,7 @@ pub struct ActiveBufferingLogger<S: Clone, L: Clone> {
 
 impl<S: Clone, L: Clone> ActiveBufferingLogger<S, L> {
     pub fn log(&mut self, l: L) {
-        let ts = get_precise_time_ns();
+        let ts = 0; // get_precise_time_ns();
         self.buffer.push((ts, self.setup.clone(), l));
         if self.buffer.len() >= BUFFERING_LOGGER_CAPACITY {
             self.flush();

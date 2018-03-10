@@ -63,8 +63,9 @@ extern crate timely_communication;
 extern crate byteorder;
 
 pub use execute::{execute, execute_logging, execute_from_args, execute_from_args_logging, example};
-pub use timely_communication::{Push, Pull, Configuration};
+pub use timely_communication::{Push, Pull, Configuration, Allocator};
 pub use order::PartialOrder;
+pub use dataflow::scopes::Root;
 
 pub mod progress;
 pub mod dataflow;

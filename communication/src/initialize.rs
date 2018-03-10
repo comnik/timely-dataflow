@@ -172,6 +172,16 @@ pub fn initialize<T:Send+'static, F: Fn(Generic)->T+Send+Sync+'static>(
     Ok(WorkerGuards { guards: guards })
 }
 
+pub fn initialize_threadless(
+    log_sender: Arc<Fn(::logging::CommsSetup)->::logging::CommsLogger+Send+Sync>
+) -> Generic {
+
+    let config = Configuration::Thread;
+    let mut allocators = create_allocators(config, log_sender).unwrap();
+
+    allocators.remove(0)
+}
+
 /// Maintains `JoinHandle`s for worker threads.
 pub struct WorkerGuards<T:Send+'static> {
     guards: Vec<::std::thread::JoinHandle<T>>

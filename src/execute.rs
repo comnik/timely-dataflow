@@ -1,18 +1,20 @@
 //! Starts a timely dataflow execution from configuration information and per-worker logic.
 
-use timely_communication::{initialize, Configuration, Allocator, WorkerGuards};
+use timely_communication::{initialize, initialize_threadless, Configuration, Allocator, WorkerGuards};
 use dataflow::scopes::{Root, Child};
 use logging::LoggerConfig;
 
 /// Executes a single-threaded timely dataflow computation.
 ///
-/// The `example` method takes a closure on a `Scope` which it executes to initialize and run a
-/// timely dataflow computation on a single thread. This method is intended for use in examples,
-/// rather than programs that may need to run across multiple workers.
+/// The `example` method takes a closure on a `Scope` which it
+/// executes to initialize and run a timely dataflow computation on a
+/// single thread. This method is intended for use in examples, rather
+/// than programs that may need to run across multiple workers.
 ///
-/// The `example` method returns whatever the single worker returns from its closure.
-/// This is often nothing, but the worker can return something about the data it saw in order to
-/// test computations.
+/// The `example` method returns whatever the single worker returns
+/// from its closure.  This is often nothing, but the worker can
+/// return something about the data it saw in order to test
+/// computations.
 ///
 /// The method aggressively unwraps returned `Result<_>` types.
 ///
@@ -29,10 +31,12 @@ use logging::LoggerConfig;
 /// });
 /// ```
 ///
-/// This next example captures the data and displays them once the computation is complete.
+/// This next example captures the data and displays them once the
+/// computation is complete.
 ///
-/// More precisely, the example captures a stream of events (receiving batches of data,
-/// updates to input capabilities) and displays these events.
+/// More precisely, the example captures a stream of events (receiving
+/// batches of data, updates to input capabilities) and displays these
+/// events.
 ///
 /// ```rust
 /// use timely::dataflow::operators::{ToStream, Inspect, Capture};
@@ -66,15 +70,17 @@ where T: Send+'static,
           .expect("Unable to retrieve result!")
 }
 
-/// Executes a timely dataflow from a configuration and per-communicator logic.
+/// Executes a timely dataflow from a configuration and
+/// per-communicator logic.
 ///
-/// The `execute` method takes a `Configuration` and spins up some number of
-/// workers threads, each of which execute the supplied closure to construct
-/// and run a timely dataflow computation.
+/// The `execute` method takes a `Configuration` and spins up some
+/// number of workers threads, each of which execute the supplied
+/// closure to construct and run a timely dataflow computation.
 ///
-/// The closure may return a `T: Send+'static`, and `execute` returns a result
-/// containing a `WorkerGuards<T>` (or error information), which can be joined
-/// to recover the result `T` values from the local workers.
+/// The closure may return a `T: Send+'static`, and `execute` returns
+/// a result containing a `WorkerGuards<T>` (or error information),
+/// which can be joined to recover the result `T` values from the
+/// local workers.
 ///
 /// #Examples
 /// ```rust
@@ -89,9 +95,9 @@ where T: Send+'static,
 /// }).unwrap();
 /// ```
 ///
-/// The following example demonstrates how one can extract data from a multi-worker execution.
-/// In a multi-process setting, each process will only receive those records present at workers
-/// in the process.
+/// The following example demonstrates how one can extract data from a
+/// multi-worker execution.  In a multi-process setting, each process
+/// will only receive those records present at workers in the process.
 ///
 /// ```rust
 /// use std::sync::{Arc, Mutex};
@@ -153,6 +159,14 @@ where T:Send+'static,
         while root.step() { }
         result
     })
+}
+
+/// Setup for WASM.
+pub fn setup_threadless() -> Root<Allocator> {
+    let logging_config: LoggerConfig = Default::default();
+    let allocator = initialize_threadless(logging_config.communication_logging.clone());
+
+    Root::new(allocator, logging_config.timely_logging.clone())
 }
 
 /// Executes a timely dataflow from supplied arguments and per-communicator logic.
